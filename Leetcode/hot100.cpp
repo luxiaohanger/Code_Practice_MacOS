@@ -1087,6 +1087,61 @@ TreeNode* buildTree(vector<int>& preorder, vector<int>& inorder) {
     return reconstruct_105(preorder, inorder, 0, r, 0, r, map);
 }
 
+// 437
+// 本质上是一个树上的两数之和，对前缀和配对
+// 精彩的处理是采用了回溯的思想保证当前哈希表中的前缀和都是一条路径上的
+// 递归函数的参数选择也很精彩
+void dfs_437(TreeNode* root, unordered_map<ll, int>& umap, int& ans, ll pre,
+             ll target) {
+    ll now = pre + root->val;
+    if (umap.contains(now - target)) {
+        ans += umap[now - target];
+    }
+    umap[now]++;
+    if (root->left) dfs_437(root->left, umap, ans, now, target);
+    if (root->right) dfs_437(root->right, umap, ans, now, target);
+    umap[now]--;
+}
+
+int pathSum(TreeNode* root, int targetSum) {
+    if (!root) return 0;
+    unordered_map<ll, int> umap;
+    umap[0]++;
+    ll pre = 0;
+    int ans = 0;
+    ll target = static_cast<ll>(targetSum);
+    dfs_437(root, umap, ans, pre, target);
+    return ans;
+}
+
+// 236
+void save_path(TreeNode* root, TreeNode* target, vector<TreeNode*>& path,
+               bool& find) {
+    if (find) return;
+    path.push_back(root);
+    if (root == target) {
+        find = true;
+        return;
+    }
+    if (root->left) save_path(root->left, target, path, find);
+    if (root->right) save_path(root->right, target, path, find);
+    if (!find) path.pop_back();
+}
+
+TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
+    vector<TreeNode*> pp;
+    vector<TreeNode*> qq;
+    bool findp = false;
+    bool findq = false;
+    save_path(root, p, pp, findp);
+    save_path(root, q, qq, findq);
+    unordered_set<TreeNode*> s(qq.begin(), qq.end());
+    for (int i = pp.size() - 1; i >= 0; --i) {
+        if (s.contains(pp[i])) return pp[i];
+    }
+    return nullptr;
+}
+
 int main() {
     ListNode* head = vectorToList({1, 2, 3, 4, 5});
     auto ans = reverseList(head);
