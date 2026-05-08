@@ -1142,6 +1142,69 @@ TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {
     return nullptr;
 }
 
+// 124
+// 树中的路径可以归结为从一个root出发，左路径和右路径连接
+// 只需dfs每个节点左右路径的最大值即可
+void dfs_124(TreeNode* root, unordered_map<TreeNode*, int>& lmap,
+             unordered_map<TreeNode*, int>& rmap) {
+    int v = root->val;
+    if (root->left) dfs_124(root->left, lmap, rmap);
+    if (root->right) dfs_124(root->right, lmap, rmap);
+    lmap[root] = max(max(lmap[root->left], rmap[root->left]) + v, v);
+    rmap[root] = max(max(lmap[root->right], rmap[root->right]) + v, v);
+}
+
+void get_ans(TreeNode* root, int& ans, unordered_map<TreeNode*, int>& lmap,
+             unordered_map<TreeNode*, int>& rmap) {
+    ans = max(ans, lmap[root] + rmap[root] - root->val);
+    if (root->left) get_ans(root->left, ans, lmap, rmap);
+    if (root->right) get_ans(root->right, ans, lmap, rmap);
+}
+
+int maxPathSum(TreeNode* root) {
+    if (!root) return 0;
+    unordered_map<TreeNode*, int> lmap;
+    unordered_map<TreeNode*, int> rmap;
+    lmap[nullptr] = 0;
+    rmap[nullptr] = 0;
+    dfs_124(root, lmap, rmap);
+    int ans = INT_MIN;
+    get_ans(root, ans, lmap, rmap);
+    return ans;
+}
+
+// 200
+bool check(int i, int j, int n, int m, vector<vector<char>>& grid,
+           vector<vector<bool>>& vis) {
+    return (i >= 0 && i < n && j >= 0 && j < m) && grid[i][j] == '1' &&
+           !vis[i][j];
+}
+
+void dfs_200(int i, int j, int n, int m, vector<vector<char>>& grid,
+             vector<vector<bool>>& vis) {
+    vis[i][j] = true;
+    if (check(i + 1, j, n, m, grid, vis)) dfs_200(i + 1, j, n, m, grid, vis);
+    if (check(i - 1, j, n, m, grid, vis)) dfs_200(i - 1, j, n, m, grid, vis);
+    if (check(i, j + 1, n, m, grid, vis)) dfs_200(i, j + 1, n, m, grid, vis);
+    if (check(i, j - 1, n, m, grid, vis)) dfs_200(i, j - 1, n, m, grid, vis);
+}
+
+int numIslands(vector<vector<char>>& grid) {
+    int n = grid.size();
+    int m = grid[0].size();
+    vector<vector<bool>> vis(n, vector<bool>(m));
+    int ans = 0;
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == '1' && !vis[i][j]) {
+                ans++;
+                dfs_200(i, j, n, m, grid, vis);
+            }
+        }
+    }
+    return ans;
+}
+
 int main() {
     ListNode* head = vectorToList({1, 2, 3, 4, 5});
     auto ans = reverseList(head);
