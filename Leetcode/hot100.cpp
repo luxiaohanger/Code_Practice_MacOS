@@ -1205,9 +1205,95 @@ int numIslands(vector<vector<char>>& grid) {
     return ans;
 }
 
+// 994
+struct badorange {
+    int x;
+    int y;
+    int time;
+};
+
+int orangesRotting(vector<vector<int>>& grid) {
+    int fresh = 0;
+    int n = grid.size();
+    int m = grid[0].size();
+    queue<badorange> q;
+
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (grid[i][j] == 1)
+                fresh++;
+            else if (grid[i][j] == 2) {
+                q.push({i, j, 0});
+            }
+        }
+    }
+
+    int now = 0;
+    while (!q.empty() && fresh != 0) {
+        auto bo = q.front();
+        q.pop();
+        if (bo.x + 1 < n && grid[bo.x + 1][bo.y] == 1) {
+            q.push({bo.x + 1, bo.y, bo.time + 1});
+            now = bo.time + 1;
+            fresh--;
+            grid[bo.x + 1][bo.y] = 2;
+        }
+        if (bo.x - 1 >= 0 && grid[bo.x - 1][bo.y] == 1) {
+            q.push({bo.x - 1, bo.y, bo.time + 1});
+            now = bo.time + 1;
+            fresh--;
+            grid[bo.x - 1][bo.y] = 2;
+        }
+        if (bo.y + 1 < m && grid[bo.x][bo.y + 1] == 1) {
+            q.push({bo.x, bo.y + 1, bo.time + 1});
+            now = bo.time + 1;
+            fresh--;
+            grid[bo.x][bo.y + 1] = 2;
+        }
+        if (bo.y - 1 >= 0 && grid[bo.x][bo.y - 1] == 1) {
+            q.push({bo.x, bo.y - 1, bo.time + 1});
+            now = bo.time + 1;
+            fresh--;
+            grid[bo.x][bo.y - 1] = 2;
+        }
+    }
+    if (fresh == 0)
+        return now;
+    else
+        return -1;
+}
+
+// 207
+bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
+    vector<int> in(numCourses);
+    vector<vector<int>> adj(numCourses);
+
+    for (auto x : prerequisites) {
+        in[x[1]]++;
+        adj[x[0]].push_back(x[1]);
+    }
+
+    queue<int> q;
+    for (int i = 0; i < numCourses; ++i) {
+        if (in[i] == 0) q.push(i);
+    }
+    int check = 0;
+
+    while (!q.empty()) {
+        auto x = q.front();
+        q.pop();
+        check++;
+        for (auto y : adj[x]) {
+            in[y]--;
+            if (in[y] == 0) q.push(y);
+        }
+    }
+    return check == numCourses;
+}
+
 int main() {
-    ListNode* head = vectorToList({1, 2, 3, 4, 5});
-    auto ans = reverseList(head);
-    deleteList(head);
+    vector<vector<int>> grid{{2, 1, 1}, {1, 1, 0}, {0, 1, 1}};
+    auto res = orangesRotting(grid);
+    cout << res << '\n';
     return 0;
 }
