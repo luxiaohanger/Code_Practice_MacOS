@@ -1291,9 +1291,80 @@ bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {
     return check == numCourses;
 }
 
+// 208
+struct Tnode {
+    char val;
+    bool isEnd;
+    vector<Tnode*> child;
+};
+
+class Trie {
+   private:
+    Tnode* root;
+
+    bool dfs(const string& word, int& idx, Tnode* root, Tnode*& last) {
+        char target = word[idx];
+        last = root;
+        for (int i = 0; i < size(root->child); ++i) {
+            if (root->child[i]->val == target) {
+                if (idx == word.size() - 1) {
+                    last = root->child[i];
+                    return true;
+                }
+                return dfs(word, ++idx, root->child[i], last);
+            }
+        }
+        return false;
+    }
+
+    void deleteT(Tnode*& root) {
+        if (root) {
+            for (int i = 0; i < root->child.size(); ++i) {
+                deleteT(root->child[i]);
+            }
+        }
+        delete root;
+        root = nullptr;
+    }
+
+   public:
+    Trie() { root = new Tnode(); }
+
+    void insert(string word) {
+        Tnode* last;
+        int idx = 0;
+        auto ans = dfs(word, idx, root, last);
+        if (!ans)
+            while (idx < word.size()) {
+                Tnode* tn = new Tnode();
+                tn->val = word[idx];
+                last->child.push_back(tn);
+                idx++;
+                last = tn;
+            }
+        last->isEnd = true;
+    }
+
+    bool search(string word) {
+        Tnode* last;
+        int idx = 0;
+        auto ans = dfs(word, idx, root, last);
+        return ans && last->isEnd;
+    }
+
+    bool startsWith(string prefix) {
+        Tnode* last;
+        int idx = 0;
+        return dfs(prefix, idx, root, last);
+    }
+
+    ~Trie() { deleteT(root); }
+};
+
 int main() {
-    vector<vector<int>> grid{{2, 1, 1}, {1, 1, 0}, {0, 1, 1}};
-    auto res = orangesRotting(grid);
-    cout << res << '\n';
+    Trie* t = new Trie();
+    t->insert("apple");
+    auto ans = t->search("apple");
+    cout << ans << '\n';
     return 0;
 }
