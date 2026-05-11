@@ -1361,6 +1361,78 @@ class Trie {
     ~Trie() { deleteT(root); }
 };
 
+// 46
+void backtrace_46(vector<bool>& vis, vector<int>& temp,
+                  vector<vector<int>>& ans, vector<int>& nums) {
+    if (temp.size() == nums.size()) {
+        ans.push_back(temp);
+        return;
+    }
+
+    for (int i = 0; i < nums.size(); ++i) {
+        if (!vis[i]) {
+            temp.push_back(nums[i]);
+            vis[i] = true;
+            backtrace_46(vis, temp, ans, nums);
+            temp.pop_back();
+            vis[i] = false;
+        }
+    }
+}
+
+vector<vector<int>> permute(vector<int>& nums) {
+    vector<bool> vis(nums.size());
+    vector<int> temp;
+    vector<vector<int>> ans;
+    backtrace_46(vis, temp, ans, nums);
+    return ans;
+}
+
+// 78
+// 和全排列不同之处在于不能有重复序列，因此可以考虑用顺序排除重复序列
+// 增加枚举起始下标，确保每次枚举的数字都比之前大
+void back_track_78(int n, vector<int>& nums, vector<int>& temp,
+                   vector<vector<int>>& ans, vector<bool>& vis, int start) {
+    if (temp.size() == n) {
+        ans.push_back(temp);
+        return;
+    }
+    for (int i = start; i < nums.size(); ++i) {
+        if (!vis[i]) {
+            temp.push_back(nums[i]);
+            vis[i] = true;
+            back_track_78(n, nums, temp, ans, vis, i + 1);
+            temp.pop_back();
+            vis[i] = false;
+        }
+    }
+}
+
+// vector<vector<int>> subsets(vector<int>& nums) {
+//     vector<vector<int>> ans;
+//     for (int i = 0; i <= nums.size(); ++i) {
+//         vector<int> temp;
+//         vector<bool> vis(nums.size());
+//         back_track_78(i, nums, temp, ans, vis, 0);
+//     }
+//     return ans;
+// }
+
+// way2:注意到 0-2^n - 1 的二进制1的位置恰好对应所有选取方法
+vector<vector<int>> subsets(vector<int>& nums) {
+    int n = nums.size();
+    vector<int> temp;
+    vector<vector<int>> ans;
+    for (int i = 0; i < (1 << n); ++i) {
+        temp.clear();
+        for (int j = 0; j < n; ++j) {
+            if (i & (1 << j)) temp.push_back(nums[j]);
+        }
+        ans.push_back(temp);
+    }
+    return ans;
+}
+
 int main() {
     Trie* t = new Trie();
     t->insert("apple");
