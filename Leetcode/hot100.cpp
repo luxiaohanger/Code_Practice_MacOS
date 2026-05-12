@@ -1433,6 +1433,58 @@ vector<vector<int>> subsets(vector<int>& nums) {
     return ans;
 }
 
+// 17
+void backtrack_17(vector<string>& ans, string& temp, string digits,
+                  vector<string>& mp) {
+    if (temp.size() == digits.size()) {
+        ans.push_back(temp);
+        return;
+    }
+    int num = digits[temp.size()] - '0';
+    for (int i = 0; i < mp[num].size(); ++i) {
+        temp.push_back(mp[num][i]);
+        backtrack_17(ans, temp, digits, mp);
+        temp.pop_back();
+    }
+}
+vector<string> letterCombinations(string digits) {
+    vector<string> mp{"",    "",    "abc",  "def", "ghi",
+                      "jkl", "mno", "pqrs", "tuv", "wxyz"};
+    vector<string> ans;
+    string temp;
+    backtrack_17(ans, temp, digits, mp);
+    return ans;
+}
+
+// 39
+struct Vsum {
+    vector<int> v;
+    int sum;
+};
+
+void backtrack_39(vector<int>& candidates, int target, vector<vector<int>>& ans,
+                  Vsum& temp, int idx) {
+    if (temp.sum == target) {
+        ans.push_back(temp.v);
+        return;
+    }
+    for (int i = idx; i < candidates.size(); ++i) {
+        if (temp.sum + candidates[i] > target) continue;
+        temp.v.push_back(candidates[i]);
+        temp.sum += candidates[i];
+        backtrack_39(candidates, target, ans, temp, i);
+        temp.v.pop_back();
+        temp.sum -= candidates[i];
+    }
+}
+
+vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
+    vector<vector<int>> ans;
+    Vsum temp{};  // init is important!
+    backtrack_39(candidates, target, ans, temp, 0);
+    return ans;
+}
+
 int main() {
     Trie* t = new Trie();
     t->insert("apple");
