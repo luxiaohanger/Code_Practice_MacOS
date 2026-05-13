@@ -1485,10 +1485,96 @@ vector<vector<int>> combinationSum(vector<int>& candidates, int target) {
     return ans;
 }
 
+// 22
+// 由组合识别为回溯模型，思考终止条件、当前可以dfs的路径
+void back_track_22(vector<string>& ans, string& temp, int& left, int& right,
+                   int n) {
+    if (left == right && left == n) {
+        ans.push_back(temp);
+        return;
+    }
+
+    if (left > right) {
+        temp += ')';
+        right++;
+        back_track_22(ans, temp, left, right, n);
+        temp.pop_back();
+        right--;
+    }
+
+    if (left < n) {
+        temp += '(';
+        left++;
+        back_track_22(ans, temp, left, right, n);
+        temp.pop_back();
+        left--;
+    }
+}
+
+vector<string> generateParenthesis(int n) {
+    vector<string> ans;
+    string temp;
+    int left = 0;
+    int right = 0;
+    back_track_22(ans, temp, left, right, n);
+    return ans;
+}
+
+// 79
+void dfs_79(int i, int j, vector<vector<char>>& board, string word,
+            vector<vector<bool>>& vis, int idx, bool& find) {
+    if (find) return;
+
+    if (idx == word.size() - 1) {
+        find = true;
+        return;
+    }
+
+    int n = board.size();
+    int m = board[0].size();
+    idx++;
+    if (i + 1 < n && !vis[i + 1][j] && board[i + 1][j] == word[idx]) {
+        vis[i + 1][j] = true;
+        dfs_79(i + 1, j, board, word, vis, idx, find);
+        vis[i + 1][j] = false;
+    }
+    if (i - 1 >= 0 && !vis[i - 1][j] && board[i - 1][j] == word[idx]) {
+        vis[i - 1][j] = true;
+        dfs_79(i - 1, j, board, word, vis, idx, find);
+        vis[i - 1][j] = false;
+    }
+    if (j + 1 < m && !vis[i][j + 1] && board[i][j + 1] == word[idx]) {
+        vis[i][j + 1] = true;
+        dfs_79(i, j + 1, board, word, vis, idx, find);
+        vis[i][j + 1] = false;
+    }
+    if (j - 1 >= 0 && !vis[i][j - 1] && board[i][j - 1] == word[idx]) {
+        vis[i][j - 1] = true;
+        dfs_79(i, j - 1, board, word, vis, idx, find);
+        vis[i][j - 1] = false;
+    }
+}
+
+bool exist(vector<vector<char>>& board, string word) {
+    int n = board.size();
+    int m = board[0].size();
+    for (int i = 0; i < n; ++i) {
+        for (int j = 0; j < m; ++j) {
+            if (board[i][j] == word[0]) {
+                bool find = false;
+                vector<vector<bool>> vis(n, vector<bool>(m));
+                // 操作依赖上一次递归时，注意考虑起始元素的处理
+                vis[i][j] = true;
+                dfs_79(i, j, board, word, vis, 0, find);
+                if (find) return true;
+            }
+        }
+    }
+    return false;
+}
+
 int main() {
-    Trie* t = new Trie();
-    t->insert("apple");
-    auto ans = t->search("apple");
-    cout << ans << '\n';
+    vector<vector<char>> board{{'a', 'a'}};
+    auto ans = exist(board, "aaa");
     return 0;
 }
