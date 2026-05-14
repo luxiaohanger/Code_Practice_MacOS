@@ -1573,6 +1573,119 @@ bool exist(vector<vector<char>>& board, string word) {
     return false;
 }
 
+// 131
+struct PairHash {
+    size_t operator()(const std::pair<int, int>& p) const {
+        // 常用组合哈希算法（例如加权异或或 hash_combine）
+        return std::hash<int>{}(p.first) ^ (std::hash<int>{}(p.second) << 1);
+    }
+};
+
+std::unordered_set<std::pair<int, int>, PairHash> pair_set;
+
+bool check_131(const string& s, vector<int>& sep) {
+    sep.push_back(s.size());
+    for (int i = 0; i < sep.size() - 1; ++i) {
+        if (!pair_set.contains({sep[i], sep[i + 1]})) {
+            int len = sep[i + 1] - sep[i];
+            for (int j = 0; j < len && sep[i] + j < sep[i + 1] - j - 1; ++j) {
+                if (s[sep[i] + j] != s[sep[i + 1] - j - 1]) {
+                    sep.pop_back();
+                    return false;
+                }
+            }
+            pair_set.insert({sep[i], sep[i + 1]});
+        }
+    }
+    sep.pop_back();
+    return true;
+}
+
+vector<string> getStr(vector<int>& sep, const string& s) {
+    vector<string> S;
+    string temp;
+    sep.push_back(s.size());
+    for (int i = 0; i < sep.size() - 1; ++i) {
+        temp.clear();
+        for (int j = sep[i]; j < sep[i + 1]; ++j) temp += s[j];
+        S.push_back(temp);
+    }
+    sep.pop_back();
+    return S;
+}
+
+void back_track_131(const string& s, vector<vector<string>>& ans,
+                    vector<int>& sep, int idx) {
+    if (check_131(s, sep)) {
+        ans.push_back(getStr(sep, s));
+    }
+    for (int i = idx + 1; i < s.size(); ++i) {
+        sep.push_back(i);
+        back_track_131(s, ans, sep, i);
+        sep.pop_back();
+    }
+}
+
+vector<vector<string>> partition(string s) {
+    vector<vector<string>> ans;
+    vector<int> sep{0};
+    back_track_131(s, ans, sep, 0);
+    return ans;
+}
+
+// 51
+void back_track_51(int x, vector<int>& temp, vector<bool>& vis,
+                   unordered_set<int>& l1, unordered_set<int>& l2,
+                   vector<vector<string>>& ans, int n) {
+    if (x == n - 1) {
+        vector<string> s;
+        string ss;
+        for (int i = 0; i < n; ++i) ss += '.';
+        for (int i = 0; i < n; ++i) {
+            ss[temp[i]] = 'Q';
+            s.push_back(ss);
+            ss[temp[i]] = '.';
+        }
+        ans.push_back(s);
+        return;
+    }
+
+    //[x + 1][tobeselect]
+    for (int i = 0; i < n; ++i) {
+        if (!vis[i] && !l1.contains(x + 1 + i) && !l2.contains(x + 1 - i)) {
+            vis[i] = true;
+            l1.insert(x + 1 + i);
+            l2.insert(x + 1 - i);
+            temp[x + 1] = i;
+            back_track_51(x + 1, temp, vis, l1, l2, ans, n);
+            vis[i] = false;
+            l1.erase(x + 1 + i);
+            l2.erase(x + 1 - i);
+            temp[x + 1] = -1;
+        }
+    }
+}
+vector<vector<string>> solveNQueens(int n) {
+    unordered_set<int> l1;
+    unordered_set<int> l2;
+    vector<int> temp(n, -1);
+    vector<bool> vis(n);
+    vector<vector<string>> ans;
+    int x = -1;
+    for (int i = 0; i < n; ++i) {
+        vis[i] = true;
+        l1.insert(x + 1 + i);
+        l2.insert(x + 1 - i);
+        temp[x + 1] = i;
+        back_track_51(x + 1, temp, vis, l1, l2, ans, n);
+        vis[i] = false;
+        l1.erase(x + 1 + i);
+        l2.erase(x + 1 - i);
+        temp[x + 1] = -1;
+    }
+    return ans;
+}
+
 int main() {
     vector<vector<char>> board{{'a', 'a'}};
     auto ans = exist(board, "aaa");
