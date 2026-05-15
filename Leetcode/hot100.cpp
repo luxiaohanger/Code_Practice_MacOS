@@ -1686,6 +1686,84 @@ vector<vector<string>> solveNQueens(int n) {
     return ans;
 }
 
+// 35
+int searchInsert(vector<int>& nums, int target) {
+    auto ans = lower_bound(nums.begin(), nums.end(), target);
+    if (ans == nums.end()) return nums.size();
+    int res = 0;
+    for (; res < nums.size(); ++res) {
+        if (nums[res] == *ans) break;
+    }
+    return res;
+}
+
+// 74
+int trans(vector<vector<int>>& matrix, int x) {
+    int m = matrix[0].size();
+    return matrix[x / m][x % m];
+}
+
+bool searchMatrix(vector<vector<int>>& matrix, int target) {
+    int n = matrix.size();
+    int m = matrix[0].size();
+    int N = m * n;
+    int left = 0;
+    int right = N - 1;
+    while (left <= right) {
+        int mid = (left + right) / 2;
+        int M = trans(matrix, mid);
+        if (M == target)
+            return true;
+        else if (M > target) {
+            right = mid - 1;
+        } else {
+            left = mid + 1;
+        }
+    }
+    return false;
+}
+
+// 75
+vector<int> searchRange(vector<int>& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    int low = -1;
+    int high = -1;
+    if (!nums.empty()) {
+        while (left <= right) {
+            int mid = (left + right) / 2;
+            if (nums[mid] == target) {
+                right = mid;
+                if (left == right) {
+                    low = mid;
+                    break;
+                }
+            } else if (nums[mid] > target) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+        left = 0;
+        right = nums.size() - 1;
+        while (left <= right) {
+            int mid = (left + right + 1) / 2;
+            if (nums[mid] == target) {
+                left = mid;
+                if (left == right) {
+                    high = mid;
+                    break;
+                }
+            } else if (nums[mid] > target) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        }
+    }
+    return {low, high};
+}
+
 int main() {
     vector<vector<char>> board{{'a', 'a'}};
     auto ans = exist(board, "aaa");
