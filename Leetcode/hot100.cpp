@@ -1703,7 +1703,7 @@ int trans(vector<vector<int>>& matrix, int x) {
     return matrix[x / m][x % m];
 }
 
-bool searchMatrix(vector<vector<int>>& matrix, int target) {
+bool searchMatrix_(vector<vector<int>>& matrix, int target) {
     int n = matrix.size();
     int m = matrix[0].size();
     int N = m * n;
@@ -1764,8 +1764,85 @@ vector<int> searchRange(vector<int>& nums, int target) {
     return {low, high};
 }
 
+// 33
+int search(vector<int>& nums, int target) {
+    int n = nums.size();
+    int l = 0;
+    int r = n - 1;
+    int begin = 0;
+    if (nums[l] > nums[r]) {
+        while (l < r - 2) {
+            int m1 = l + (r - l) / 3;
+            int m2 = l + 2 * (r - l) / 3;
+            if (nums[l] < nums[m1] && nums[m1] < nums[m2]) {
+                l = m2;
+            } else if (nums[l] < nums[m1] && nums[m1] > nums[m2]) {
+                l = m1;
+                r = m2;
+            } else {
+                r = m1;
+            }
+        }
+
+        if (l == r - 1)
+            begin = r;
+        else if (l == r - 2) {
+            if (nums[l] < nums[l + 1])
+                begin = r;
+            else
+                begin = l + 1;
+        }
+    }
+    int left = 0;
+    int right = n - 1;
+    while (left <= right) {
+        int m = (left + right) / 2;
+        int mid = (begin + m) % n;
+        if (nums[mid] == target)
+            return mid;
+        else if (nums[mid] > target)
+            right = m - 1;
+        else
+            left = m + 1;
+    }
+    return -1;
+}
+
+// 153
+int findMin(vector<int>& nums) {
+    int n = nums.size();
+    int l = 0;
+    int r = n - 1;
+    int begin = 0;
+    if (nums[l] > nums[r]) {
+        while (l < r - 2) {
+            int m1 = l + (r - l) / 3;
+            int m2 = l + 2 * (r - l) / 3;
+            if (nums[l] < nums[m1] && nums[m1] < nums[m2]) {
+                l = m2;
+            } else if (nums[l] < nums[m1] && nums[m1] > nums[m2]) {
+                l = m1;
+                r = m2;
+            } else {
+                r = m1;
+            }
+        }
+
+        if (l == r - 1)
+            begin = r;
+        else if (l == r - 2) {
+            if (nums[l] < nums[l + 1])
+                begin = r;
+            else
+                begin = l + 1;
+        }
+    }
+    return nums[begin];
+}
+
 int main() {
-    vector<vector<char>> board{{'a', 'a'}};
-    auto ans = exist(board, "aaa");
+    vector<int> nums{4, 5, 6, 7, 0, 1, 2};
+    auto ans = search(nums, 3);
+    cout << ans;
     return 0;
 }
