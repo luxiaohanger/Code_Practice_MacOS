@@ -1840,6 +1840,74 @@ int findMin(vector<int>& nums) {
     return nums[begin];
 }
 
+// 4
+double findMedianSortedArrays(vector<int>& nums1, vector<int>& nums2) {}
+
+// 20
+bool isValid(string s) {
+    stack<char> st;
+
+    for (const auto& x : s) {
+        if (x == '(' || x == '[' || x == '{') {
+            st.push(x);
+        }
+
+        if (x == ')') {
+            if (!st.empty() && st.top() == '(') {
+                st.pop();
+            } else {
+                return false;
+            }
+        }
+
+        if (x == ']') {
+            if (!st.empty() && st.top() == '[') {
+                st.pop();
+            } else {
+                return false;
+            }
+        }
+        if (x == '}') {
+            if (!st.empty() && st.top() == '{') {
+                st.pop();
+            } else {
+                return false;
+            }
+        }
+    }
+    return st.empty();
+}
+
+// 155
+// 使用辅助栈help记录当前元素入栈时的最小值
+class MinStack {
+   private:
+    stack<int> st;
+    stack<int> help;
+
+   public:
+    MinStack() {}
+
+    void push(int val) {
+        if (!st.empty()) {
+            st.push(val);
+            help.push(::min(val, help.top()));
+        } else {
+            st.push(val);
+            help.push(val);
+        }
+    }
+
+    void pop() {
+        st.pop();
+        help.pop();
+    }
+
+    int top() { return st.top(); }
+
+    int getMin() { return help.top(); }
+};
+
 int main() {
     vector<int> nums{4, 5, 6, 7, 0, 1, 2};
     auto ans = search(nums, 3);
