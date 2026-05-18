@@ -1908,6 +1908,60 @@ class MinStack {
     int getMin() { return help.top(); }
 };
 
+// 394
+// 递归深入嵌套括号
+// 遇到数字就进入解码递归，将本括号解码结果加入答案字符ans
+// 递归的桥梁就是让临时ss作为子递归的ans
+void decodes(string& ans, string& s, int& idx) {
+    string num;
+    while (isdigit(s[idx])) {
+        num += s[idx];
+        ++idx;
+    }
+    int n = stoi(num);
+    string ss;
+    ++idx;
+    while (true) {
+        if (s[idx] == ']') break;
+        if (isdigit(s[idx])) {
+            decodes(ss, s, idx);
+        } else {
+            ss += s[idx];
+        }
+        ++idx;
+    }
+    for (int j = 0; j < n; ++j) ans += ss;
+}
+
+string decodeString(string s) {
+    string ans;
+    int idx = 0;
+    while (idx < s.size()) {
+        if (isdigit(s[idx]))
+            decodes(ans, s, idx);
+        else
+            ans += s[idx];
+        // while 循环注意内部更新下标
+        ++idx;
+    }
+    return ans;
+}
+
+// 739
+vector<int> dailyTemperatures(vector<int>& temperatures) {
+    int n = temperatures.size();
+    stack<pii> st;
+    vector<int> ans(n);
+    for (int i = 0; i < temperatures.size(); ++i) {
+        while (!st.empty() && temperatures[i] > st.top().first) {
+            ans[st.top().second] = i - st.top().second;
+            st.pop();
+        }
+        st.push({temperatures[i], i});
+    }
+    return ans;
+}
+
 int main() {
     vector<int> nums{4, 5, 6, 7, 0, 1, 2};
     auto ans = search(nums, 3);
